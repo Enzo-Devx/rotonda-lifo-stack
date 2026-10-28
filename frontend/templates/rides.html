@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% from 'macros.html' import icon %}
+{% block title %}Next ride{% endblock %}
+{% block breadcrumb %}Next ride{% endblock %}
+{% block content %}
+<section class="page-heading"><div><p class="eyebrow">YOUR NEXT RIDE!</p><h1>Pick a road<span class="heading-dot">.</span></h1><p class="page-intro">Sample routes with distance and vibe. Each card checks the round trip against the kilometres left before every bike's next service.</p></div><span class="count-badge">{{ routes|length }} route ideas</span></section>
+{% if not bikes %}<div class="notice notice-info" role="status">{{ icon('alert', 18) }}<span>Add a motorcycle with its current km and next service km to see ride readiness checks. <a href="{{ url_for('new_item', category='Motorcycle') }}">Add a bike</a></span></div>{% endif %}
+<div class="route-grid">
+{% for route in routes %}
+<article class="route-card surface" data-route="{{ route.slug }}">
+  <p class="eyebrow">{{ route.destination }}</p>
+  <h2>{{ route.name }}</h2>
+  <dl class="route-specs"><div><dt>One way</dt><dd>~{{ route.one_way_km }} km</dd></div><div><dt>Round trip</dt><dd>~{{ route.round_trip_km }} km</dd></div><div><dt>Time</dt><dd>{{ route.duration }}</dd></div></dl>
+  <p class="route-terrain">{{ icon('route', 15) }}{{ route.terrain }}</p>
+  <p class="route-vibe">&ldquo;{{ route.vibe }}&rdquo;</p>
+  <div class="route-checks"><h3>Bike readiness</h3>
+  {% for check in route.checks %}<p class="readiness readiness-{{ check.level }}">{{ icon('check-circle' if check.level == 'ok' else 'alert', 18) }}<span>{{ check.message }}</span></p>{% else %}<p class="readiness readiness-none">No bikes with service readings yet.</p>{% endfor %}
+  </div>
+  <a class="button button-secondary" href="{{ route.maps_url }}" target="_blank" rel="noopener noreferrer">{{ icon('route', 16) }}Open in Google Maps</a>
+</article>
+{% endfor %}
+</div>
+<p class="preferences-note">Distances are approximate sample values for this class project. Change them in <code>backend/garage.py</code>.</p>
+{% endblock %}

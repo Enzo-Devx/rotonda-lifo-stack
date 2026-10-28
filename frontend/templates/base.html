@@ -1,0 +1,36 @@
+{% from 'macros.html' import icon %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#15171a">
+  <meta name="description" content="Rotonda: a garage manager for motorcycle riders. Track service intervals, plan parts, and pick your next ride.">
+  <title>{% block title %}Garage{% endblock %} · Rotonda</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&display=swap">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="rt accent-{{ workspace.accent|default('pine') }}">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="rt-top">
+    <div class="rt-bar">
+      <a class="rt-brand" href="{{ url_for('index') }}" aria-label="Rotonda home"><svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><circle cx="16" cy="16" r="12.5" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="16" cy="16" r="3" fill="currentColor"/><path d="M16 4v9M16 19v9M4 16h9M19 16h9" stroke="currentColor" stroke-width="2"/></svg>rotonda</a>
+      <span class="rt-ws" title="Your garage name (change it in Preferences)">{{ workspace.name }}</span>
+      <nav class="rt-nav" aria-label="Main navigation">
+        <a href="{{ url_for('index') }}" {% if page == 'board' %}class="on" aria-current="page"{% endif %}>{{ icon('bike', 18) }}Garage</a>
+        <a href="{{ url_for('rides') }}" {% if page == 'rides' %}class="on" aria-current="page"{% endif %}>{{ icon('route', 18) }}Next ride</a>
+        <a href="{{ url_for('recovery') }}" {% if page == 'recovery' %}class="on" aria-current="page"{% endif %}>{{ icon('archive', 18) }}Recovery tray{% if counts.archived %}<b class="rt-count">{{ counts.archived }}</b>{% endif %}</a>
+        <a href="{{ url_for('activity') }}" {% if page == 'activity' %}class="on" aria-current="page"{% endif %}>{{ icon('clock', 18) }}Activity</a>
+      </nav>
+      <div class="rt-actions"><a class="rt-pref" href="{{ url_for('settings') }}" aria-label="Preferences" title="Preferences">{{ icon('settings', 19) }}</a><a class="button button-primary" href="{{ url_for('new_item') }}">{{ icon('plus', 17) }}New item</a></div>
+    </div>
+  </header>
+  <main id="main" class="rt-main">
+    {% with messages = get_flashed_messages(with_categories=true) %}{% for category, message in messages %}<div class="notice notice-{{ category }}" role="status">{{ icon('check-circle', 18) if category == 'success' else icon('alert', 18) }}<span>{{ message }}</span></div>{% endfor %}{% endwith %}
+    {% block content %}{% endblock %}
+    <footer class="page-footer"><span>Rotonda: ride ready, every time. <a href="{{ url_for('guide') }}">Project notes</a></span><span>Remixed from the workbench starter by franku69</span></footer>
+  </main>
+</body>
+</html>

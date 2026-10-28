@@ -1,0 +1,40 @@
+WORKBENCH - START HERE
+======================
+
+1. Extract the ZIP into a NEW folder; do not run inside the ZIP viewer.
+2. Open the extracted Workbench_Starter folder.
+3. Run SETUP_WINDOWS.bat once. Look for SETUP COMPLETE.
+4. Run START_WEBSITE.bat. The browser opens automatically.
+
+PowerShell:
+  .\SETUP_WINDOWS.bat
+  .\START_WEBSITE.bat
+
+Website: http://127.0.0.1:5000
+Keep the server window open. Press Ctrl+C to stop.
+Next time you only need START_WEBSITE.bat.
+
+WHERE DO I WORK?
+  frontend/  = HTML pages, CSS, icons, and visual design
+  backend/   = Python, Flask routes, validation, and the Stack challenge
+  database/  = SQLite queries, table schema, and saved data
+  docs/      = Student task, teacher guide, and repository map
+  tests/     = Website/layout checks that should pass
+  challenge/ = LIFO goal checks that fail until you solve the activity
+
+YOUR MAIN DSA FILE:
+  backend/stack.py
+
+The starter intentionally uses FIFO. Students must implement LIFO.
+CHECK_STACK.bat is expected to report failures before the challenge is solved.
+RUN_TESTS.bat checks the website separately.
+
+Python 3.10+ is required. First setup needs internet for Flask.
+No separate frontend install or database server is needed.
+SQLite data is created at database/data/workbench.sqlite3 when you start.
+The session-signing key is created in instance/.secret_key.
+
+Read README.md and docs/REPOSITORY_MAP.md for the full project map.
+Students: docs/STUDENT_ACTIVITY.md
+Teachers: docs/TEACHER_GUIDE.md
+Keeping old saved data: docs/REORGANIZATION.md

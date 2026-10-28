@@ -1,0 +1,23 @@
+# Local Python environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Runtime session key; NEVER commit this folder
+instance/
+.secret_key
+.env
+.env.*
+!.env.example
+
+# Database content is generated locally. Keep only the folder marker.
+database/data/*
+!database/data/.gitkeep
+*.sqlite*
+*.db
+
+# Editor/OS clutter
+.DS_Store
+Thumbs.db

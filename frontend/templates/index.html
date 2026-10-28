@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% from 'macros.html' import icon, csrf, item_card %}
+{% block title %}My garage{% endblock %}
+{% block content %}
+<section class="rt-hero" aria-label="Garage overview">
+  <div class="rt-hero-head"><h1>Ride ready<span class="heading-dot">.</span></h1>
+    <p class="rt-pills"><span>{{ summary.bikes }} bike{{ 's' if summary.bikes != 1 else '' }}</span><span class="{{ 'is-warn' if summary.service_soon else '' }}">{{ summary.service_soon }} due for service</span><span>{{ summary.wishlist_budget|peso }} wishlist</span></p></div>
+  <div class="rt-hero-grid">
+    <div class="rt-bikes" aria-label="Your bikes">
+      {% for bike in bikes %}{% set sv = bike|service_status %}{% set pct = ([[sv.left, 0]|max, 1000]|min) / 10 %}
+      <article class="rt-bike rt-{{ sv.level }}">
+        <svg class="rt-dial" viewBox="0 0 120 68" role="img" aria-label="{{ sv.left|abs }} km {{ 'past service' if sv.left < 0 else 'until service' }}"><path class="rt-dial-bg" d="M10 62 A50 50 0 0 1 110 62" pathLength="100"/><path class="rt-dial-fg" d="M10 62 A50 50 0 0 1 110 62" pathLength="100" style="stroke-dasharray: {{ pct }} 100"/></svg>
+        <p class="rt-read"><strong>{{ sv.left|abs }}</strong> km {{ 'overdue' if sv.left < 0 else 'to service' }}</p>
+        <h3><a href="{{ url_for('edit_item', item_id=bike.id) }}">{{ bike.title }}</a></h3>
+        <p class="rt-odo">{{ '{:,}'.format(bike.odometer_km) }} km on the clock</p>
+      </article>
+      {% else %}
+      <article class="rt-bike rt-empty"><h3>No bikes yet</h3><p>Add a motorcycle with its current km and next service km to see its dial.</p><a class="button button-primary" href="{{ url_for('new_item', category='Motorcycle') }}">{{ icon('plus', 16) }}Add a bike</a></article>
+      {% endfor %}
+    </div>
+    <section class="rt-planner" aria-labelledby="rt-planner-h">
+      <h2 id="rt-planner-h">{{ icon('alert', 20) }}Garage Intelligence</h2>
+      {% if bikes %}
+      <p class="rt-step">1. Pick a bike</p>
+      <div class="rt-chips" id="rt-bike-chips" role="group" aria-label="Bike">{% for bike in bikes %}<button type="button" class="rt-chip{{ ' on' if loop.first else '' }}" data-i="{{ loop.index0 }}" aria-pressed="{{ 'true' if loop.first else 'false' }}">{{ bike.title }}</button>{% endfor %}</div>
+      <p class="rt-step">2. Pick a ride</p>
+      <div class="rt-chips" id="rt-route-chips" role="group" aria-label="Route">{% for route in routes %}<button type="button" class="rt-chip{{ ' on' if loop.first else '' }}" data-i="{{ loop.index0 }}" aria-pressed="{{ 'true' if loop.first else 'false' }}">{{ route.name }}</button>{% endfor %}</div>
+      <label class="rt-step" for="rt-extra">3. Add a detour: <output id="rt-extra-out">0</output> km</label>
+      <input id="rt-extra" type="range" min="0" max="300" step="10" value="0">
+      <div class="rt-meter" aria-hidden="true"><span class="rt-meter-ride" id="rt-m-ride"></span><span class="rt-meter-left" id="rt-m-left"></span></div>
+      <p class="rt-legend"><span>Ride: <b id="rt-km">0</b> km round trip</span><span>Left before service: <b id="rt-left">0</b> km</span></p>
+      <p class="rt-verdict" id="rt-verdict" role="status" aria-live="polite"></p>
+      {% set bike_data = [] %}{% for bike in bikes %}{% set _ = bike_data.append({'name': bike.title, 'left': bike.service_due_km - bike.odometer_km}) %}{% endfor %}
+      {% set route_data = [] %}{% for route in routes %}{% set _ = route_data.append({'name': route.name, 'km': route.round_trip_km}) %}{% endfor %}
+      <script type="application/json" id="rt-data">{{ {'bikes': bike_data, 'routes': route_data}|tojson }}</script>
+      {% else %}<p>Add a bike and this planner will tell you if it can handle the ride.</p>{% endif %}
+      <a class="rt-more" href="{{ url_for('rides') }}">See every route{{ icon('arrow', 15) }}</a>
+    </section>
+  </div>
+</section>
+<section class="rt-shop" aria-labelledby="board-heading">
+  <div class="rt-shop-head"><h2 id="board-heading">The workshop <small>{{ items|length }} item{{ 's' if items|length != 1 else '' }}</small></h2><div class="view-switch" aria-label="Display layout"><a href="{{ url_for('index', view='board', q=query, status=selected_status, category=selected_category) }}" class="{{ 'selected' if view == 'board' else '' }}" aria-label="Card view" {% if view == 'board' %}aria-current="true"{% endif %}>{{ icon('grid', 17) }}<span>Cards</span></a><a href="{{ url_for('index', view='list', q=query, status=selected_status, category=selected_category) }}" class="{{ 'selected' if view == 'list' else '' }}" aria-label="List view" {% if view == 'list' %}aria-current="true"{% endif %}>{{ icon('list', 17) }}<span>List</span></a></div></div>
+  <div class="rt-toolbar">
+    <nav class="rt-seg" aria-label="Filter by type"><a href="{{ url_for('index', view=view, q=query, status=selected_status) }}" class="{{ 'on' if not selected_category else '' }}">All</a>{% for key, label in category_filters.items() %}<a href="{{ url_for('index', view=view, q=query, status=selected_status, category=key) }}" class="{{ 'on' if selected_category == key else '' }}">{{ label }}</a>{% endfor %}</nav>
+    <nav class="rt-seg rt-seg-status" aria-label="Filter by status"><a href="{{ url_for('index', view=view, q=query, category=selected_category) }}" class="{{ 'on' if not selected_status else '' }}">Any status</a>{% for key, label in statuses.items() %}<a href="{{ url_for('index', view=view, q=query, status=key, category=selected_category) }}" class="{{ 'on' if selected_status == key else '' }} s-{{ key }}">{{ label }}</a>{% endfor %}</nav>
+    <form class="search-form" method="get" action="{{ url_for('index') }}">{{ icon('search', 17) }}<label class="sr-only" for="search-items">Search items</label><input id="search-items" name="q" value="{{ query }}" placeholder="Search bikes, parts, service" maxlength="120"><input type="hidden" name="view" value="{{ view }}"><input type="hidden" name="status" value="{{ selected_status }}"><input type="hidden" name="category" value="{{ selected_category }}"><button class="search-submit" type="submit" aria-label="Search">↵</button></form>
+  </div>
+  {% if query %}<p class="search-results">{{ items|length }} result{{ 's' if items|length != 1 else '' }} for <strong>“{{ query }}”</strong><a href="{{ url_for('index', view=view, status=selected_status, category=selected_category) }}">Clear search</a></p>{% endif %}
+  {% if view == 'board' %}
+  <div class="rt-grid">{% for item in items %}<div class="rt-cell s-{{ item.status }}"><span class="rt-status">{{ statuses[item.status] }}</span>{{ item_card(item, csrf_token, statuses) }}</div>{% else %}<div class="lane-empty rt-none">{{ icon('leaf', 27) }}<p>Nothing here yet. Add a bike, part, or service.</p><a class="button button-secondary" href="{{ url_for('new_item', category=selected_category) }}">{{ icon('plus', 16) }}Add item</a></div>{% endfor %}</div>
+  {% else %}
+  <div class="list-view"><table class="items-table"><thead><tr><th>Item</th><th>Status</th><th>Priority</th><th>Due date</th><th><span class="sr-only">Actions</span></th></tr></thead><tbody>{% for item in items %}<tr><td><a class="table-title" href="{{ url_for('edit_item', item_id=item.id) }}">{{ item.title }}</a><small>{{ item.category }}{% if item.budget is not none %} · {{ item.budget|peso }}{% endif %}{% set sv = item|service_status %}{% if sv %} · service in {{ sv.left }} km{% endif %}</small></td><td><span class="status-label status-{{ item.status }}">{{ statuses[item.status] }}</span></td><td><span class="priority-label priority-{{ item.priority }}"><i></i>{{ item.priority|capitalize }}</span></td><td class="table-date">{{ item.due_date|short_date }}</td><td><div class="table-actions"><a class="icon-button" href="{{ url_for('edit_item', item_id=item.id) }}" aria-label="Edit {{ item.title }}">{{ icon('edit', 16) }}</a><form method="post" action="{{ url_for('remove_item', item_id=item.id) }}">{{ csrf(csrf_token) }}<button class="icon-button" aria-label="Move {{ item.title }} to recovery tray">{{ icon('archive', 17) }}</button></form></div></td></tr>{% else %}<tr><td colspan="5" class="table-empty">Nothing matches this view. Try a different filter or add an item.</td></tr>{% endfor %}</tbody></table></div>
+  {% endif %}
+</section>
+<script>
+(function () {
+  var el = document.getElementById("rt-data"); if (!el) return;
+  var data = JSON.parse(el.textContent), bi = 0, ri = 0;
+  var $ = function (id) { return document.getElementById(id); };
+  function group(id, set) {
+    $(id).addEventListener("click", function (e) {
+      var b = e.target.closest("button"); if (!b) return;
+      this.querySelectorAll("button").forEach(function (x) { var on = x === b; x.classList.toggle("on", on); x.setAttribute("aria-pressed", on); });
+      set(+b.dataset.i); render();
+    });
+  }
+  function render() {
+    var bike = data.bikes[bi], km = data.routes[ri].km + (+$("rt-extra").value), left = bike.left;
+    var state = left < 0 ? "overdue" : (km > left ? "warn" : "ok"), scale = Math.max(km, left, 100);
+    $("rt-extra-out").textContent = $("rt-extra").value; $("rt-km").textContent = km; $("rt-left").textContent = left;
+    $("rt-m-ride").style.width = (km / scale * 100) + "%"; $("rt-m-left").style.width = (Math.max(left, 0) / scale * 100) + "%";
+    var v = $("rt-verdict"); v.className = "rt-verdict is-" + state;
+    v.textContent = state === "overdue" ? bike.name + " is " + Math.abs(left) + " km past its service. Book the service before a long ride."
+      : state === "warn" ? "You're planning a " + km + " km ride on your " + bike.name + "! Its service is due in " + left + " km. Do the service before rolling out, or schedule it right after."
+      : bike.name + " is ready: " + left + " km left before service, and this ride is " + km + " km.";
+  }
+  group("rt-bike-chips", function (i) { bi = i; }); group("rt-route-chips", function (i) { ri = i; });
+  $("rt-extra").addEventListener("input", render); render();
+})();
+</script>
+{% endblock %}
