@@ -123,4 +123,4 @@ Contribution details: `docs/CONTRIBUTIONS.md`.
 ## 8. Credits
 
 1. Original starter: **Workbench**, by franku69 (`https://github.com/franku69/Website-Stack-Data-Structure`), for the DSA student activity.
-2. Rotonda, the LIFO stack and the redesign were built by Milan on top of that starter.
+2. Rotonda, the LIFO stack and the redesign were built by yours truly, on top of the starter.
