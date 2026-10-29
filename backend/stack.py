@@ -1,17 +1,4 @@
-"""BACKEND / STUDENT MODIFICATION ZONE: backend/stack.py.
 
-This RUNNABLE starter is deliberately NOT a stack yet. It keeps records in a
-dictionary and takes the oldest record first (FIFO). The recovery tray calls
-this class directly, so changing this file changes the real website.
-
-YOUR CHALLENGE: replace the storage and operations with a real LIFO Stack.
-Keep the public methods below so backend/app.py can continue calling them. You may
-rename your class to Stack and add `HistoryBuffer = Stack` at the bottom.
-
-Storage contract: to_list() returns values from oldest/bottom to newest/top.
-The database saves that list and passes it to the constructor next request.
-Do not change that contract when you change the removal rule.
-"""
 
 
 """BACKEND / STUDENT MODIFICATION ZONE: backend/stack.py.
