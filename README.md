@@ -98,9 +98,13 @@ Full explanation: `docs/STACK_EXPLANATION.md`.
 
 ## 6. Team
 
-| Member | Roles |
+| Member | Role |
 |---|---|
-| Milan | Solo project: team lead and integration, backend and stack, frontend and UI, data and features, QA and documentation |
+| Milan Mojello | Team lead and integration, backend and stack, frontend and UI, data and features |
+| Dairjeen Abasolo | Documentation and tester |
+| Karioca Ceniza | Presentation content |
+| Jasper Emano | Presentation design |
+| Joniel Amogius | Retouches and tester |
 
 Contribution details: `docs/CONTRIBUTIONS.md`.
 
